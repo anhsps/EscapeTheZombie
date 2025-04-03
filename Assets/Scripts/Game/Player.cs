@@ -4,11 +4,15 @@ using UnityEngine;
 
 public class Player : Character
 {
+    /*[HideInInspector] */public float girlNum, itemNum;
+    private float girlMax, itemMax;
+    private TimeDisplay timeDisplay;
+
+    [Header("Move")]
     private float horiInput, verInput;
     private float moveInput;
     private Vector3 moveDir;
     private Vector3 groundCheck;
-    //private CheckWall checkWall;
     [SerializeField] private float moveSP = 7f;
     [SerializeField] private float jumpSP = 12f;
 
@@ -24,7 +28,7 @@ public class Player : Character
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<Collider2D>();
         checkWall = GetComponentInChildren<CheckWall>();
-        //Test();
+        timeDisplay = FindObjectOfType<TimeDisplay>(true);
     }
 
     // Update is called once per frame
@@ -33,6 +37,12 @@ public class Player : Character
         if (done) return;
 
         if (!IsOnScreen(transform.position)) StartCoroutine(DelayLose());
+
+        if (timeDisplay.currentTime <= 0)
+        {
+            GameManager19.Instance.GameLose();
+            done = true;
+        }
 
         horiInput = Input.GetAxisRaw("Horizontal");
         verInput = Input.GetAxisRaw("Vertical");
@@ -56,53 +66,17 @@ public class Player : Character
     private bool IsGrounded()
     {
         groundCheck = new Vector2(transform.position.x, col.bounds.min.y);
-        RaycastHit2D hit = Physics2D.Raycast(groundCheck, Vector2.down, 0.1f, LayerMask.GetMask("Ground"));
-        return hit.collider != null;
+        return Physics2D.OverlapCircle(groundCheck, 0.1f, layerGround);
     }
-
-    /*private bool CheckWall()
-    => Physics2D.OverlapPoint(wallCheck.position, LayerMask.GetMask("Ground", "Wall"));*/
-
-    /*private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(transform.position, groundCheck);
-    }*/
 
     private IEnumerator Winner()
     {
+        animator.Rebind();
+        rb.velocity = Vector2.zero;
+        done = true;
         yield return new WaitForSeconds(1f);
         Debug.Log("Win");
         GameManager19.Instance.GameWin();
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.gameObject.CompareTag("Item"))
-        {
-            SoundManager19.Instance.PlaySound(5);
-            //GameManager19.Instance.IncreaseScore(1);
-            Destroy(collision.gameObject);
-        }
-    }
-
-    private void OnTriggerStay2D(Collider2D collision)
-    {
-        /*if (collision.gameObject.CompareTag("Finish"))
-        {
-                collision.GetComponent<Collider2D>().enabled = false;
-                //animator.Rebind();
-                rb.velocity = Vector2.zero;
-                StartCoroutine(Winner());
-                done = true;
-        }*/
-
-        /*if (collision.gameObject.CompareTag("Trap"))
-        {
-            collision.GetComponent<Collider2D>().enabled = false;
-            kbFromRight = !facingLeft;
-            StartCoroutine(DelayLose());
-        }*/
     }
 
     public IEnumerator DelayLose()
@@ -114,6 +88,33 @@ public class Player : Character
 
         yield return new WaitForSeconds(1f);
         GameManager19.Instance.GameLose();
+    }
+
+    private void CheckWin()
+    {
+        if (girlNum >= girlMax && itemNum >= itemMax)
+            StartCoroutine(Winner());
+    }
+
+    public void UpdateGirlItemCount()
+    {
+        girlMax = FindObjectsOfType<Girl>().Length;
+        itemMax = GameObject.FindGameObjectsWithTag("Item").Length;
+        Debug.Log("girl: " + girlMax);
+        Debug.Log("item: " + itemMax);
+    }
+
+    public void CollectItem()
+    {
+        SoundManager19.Instance.PlaySound(5);
+        itemNum++;
+        CheckWin();
+    }
+
+    public void IncreaseGirl()
+    {
+        girlNum++;
+        CheckWin();
     }
 
     private bool IsOnScreen(Vector3 pos)

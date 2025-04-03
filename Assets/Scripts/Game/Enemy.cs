@@ -6,7 +6,6 @@ public class Enemy : Character
 {
     [SerializeField] private float speed = 2f;
     [SerializeField] private Transform groundCheck;
-    //[SerializeField] private Transform wallCheck;
 
     // Start is called before the first frame update
     void Start()
@@ -15,13 +14,11 @@ public class Enemy : Character
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<Collider2D>();
         checkWall = GetComponentInChildren<CheckWall>();
-        //Test();
     }
 
     // Update is called once per frame
     void Update()
     {
-        //if (done) return;
         Move();
         if (!CheckGround() || checkWall.isWall) Flip();
     }
@@ -34,8 +31,8 @@ public class Enemy : Character
     }
 
     private bool CheckGround()
-        => Physics2D.OverlapPoint(groundCheck.position, LayerMask.GetMask("Ground"));
-
-    /*private bool CheckWall()
-        => Physics2D.OverlapPoint(wallCheck.position, LayerMask.GetMask("Wall"));*/
+    {
+        groundCheck.position = new Vector2(groundCheck.position.x, col.bounds.min.y);
+        return Physics2D.OverlapCircle(groundCheck.position, 0.1f, layerGround);
+    }
 }

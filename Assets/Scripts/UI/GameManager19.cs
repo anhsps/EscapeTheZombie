@@ -14,14 +14,11 @@ public class GameManager19 : Singleton<GameManager19>
     [SerializeField] private GameObject winMenu, loseMenu, pauseMenu;
     [SerializeField] private RectTransform winPanel, losePanel, pausePanel;
     [SerializeField] private float topPosY = 250f, middlePosY, tweenDuration = 0.3f;
-    private int maxLV = 15;
+    private int maxLV = 10;
 
-    [SerializeField] private TextMeshProUGUI scoreText, scoreText2;
-    private int score;
-
-    /*[Header("Grid")]
+    [Header("Grid")]
     [SerializeField] private Transform gridParent;
-    [SerializeField] private GameObject[] gridPrefabs;*/
+    [SerializeField] private GameObject[] gridPrefabs;
 
     protected override void Awake()
     {
@@ -32,8 +29,6 @@ public class GameManager19 : Singleton<GameManager19>
 
     async void Start()
     {
-        if (scoreText && scoreText2) UpdateScore(LoadBest());
-
         await HidePanel(winMenu, winPanel);
         await HidePanel(loseMenu, losePanel);
         await HidePanel(pauseMenu, pausePanel);
@@ -43,23 +38,26 @@ public class GameManager19 : Singleton<GameManager19>
     {
         if (levelIndex < 1 || levelIndex > maxLV) levelIndex = 1;
 
+        maxLV = gridPrefabs.Length;
         if (levelIndex == maxLV && nextBtn_win) nextBtn_win.SetActive(false);
 
         PlayerPrefs.SetInt("CurrentLevel", levelIndex);
 
-        if (lvText) lvText.text = "LEVEL " + (levelIndex < 10 ? "0" + levelIndex : levelIndex);
+        if (lvText) lvText.text = "LEVEL " + levelIndex.ToString("00");
 
-        //if (gridPrefabs.Length > 0) CreateGrid(levelIndex);
+        if (gridPrefabs.Length > 0) CreateGrid(levelIndex);
     }
 
-    /*private void CreateGrid(int levelIndex)
+    private void CreateGrid(int levelIndex)
     {
         foreach (Transform child in gridParent)
             Destroy(child.gameObject);
 
         if (gridPrefabs[levelIndex - 1] != null)
             Instantiate(gridPrefabs[levelIndex - 1], gridParent);
-    }*/
+
+        StartCoroutine(DelayPlayer());// create grid xong ms chay tranh loi
+    }
 
     public void Home() => SceneManager.LoadScene("Home");
     public void StartGame() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
@@ -126,17 +124,10 @@ public class GameManager19 : Singleton<GameManager19>
         GameWin();
     }
 
-    // score
-    public void IncreaseScore(int point) => UpdateScore(score + point);
-
-    private void UpdateScore(int score)
+    private IEnumerator DelayPlayer()
     {
-        this.score = score;
-        if (score != LoadBest())
-            PlayerPrefs.SetInt("best", score);
-        if(scoreText) scoreText.text = LoadBest().ToString();
-        if (scoreText2) scoreText2.text = LoadBest().ToString();
+        yield return null;
+        Player player = FindObjectOfType<Player>();
+        if (player) player.UpdateGirlItemCount();
     }
-
-    private int LoadBest() => PlayerPrefs.GetInt("best", 0);
 }

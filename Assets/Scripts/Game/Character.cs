@@ -9,10 +9,15 @@ public class Character : MonoBehaviour
     protected Collider2D col;
 
     protected CheckWall checkWall;
-    //protected Vector3 groundCheck;
+    protected int layerGround;
 
     public bool facingLeft;
-    public bool done;
+    protected bool done;
+
+    private void Awake()
+    {
+        layerGround = LayerMask.GetMask("Ground");
+    }
 
     protected void Flip()
     {
@@ -21,13 +26,6 @@ public class Character : MonoBehaviour
         localScale.x *= -1;
         transform.localScale = localScale;
     }
-
-    /*protected bool IsGrounded()
-    {
-        groundCheck = new Vector2(transform.position.x, col.bounds.min.y);
-        RaycastHit2D hit = Physics2D.Raycast(groundCheck, Vector2.down, 0.1f, LayerMask.GetMask("Ground"));
-        return hit.collider != null;
-    }*/
 
     protected IEnumerator KnockBack(Rigidbody2D rb, float duration, float x, float y)
     {
@@ -52,15 +50,10 @@ public class Character : MonoBehaviour
     {
         SoundManager19.Instance.PlaySound(index);
         done = state;
-        //animator.Rebind();
-        //if (state) animator.SetTrigger("Die");
+        animator.Rebind();
+        if (state) animator.SetTrigger("Die");
         Collider2D[] cols = GetComponentsInChildren<Collider2D>();
         foreach (Collider2D item in cols)
             item.enabled = !state;
-    }
-
-    protected  void Test()
-    {
-        Debug.Log(transform.position);
     }
 }
