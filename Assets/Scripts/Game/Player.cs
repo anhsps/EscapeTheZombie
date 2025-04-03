@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Player : Character
 {
-    /*[HideInInspector] */public float girlNum, itemNum;
+    [HideInInspector] public float girlNum, itemNum;
     private float girlMax, itemMax;
     private TimeDisplay timeDisplay;
 
@@ -29,6 +29,8 @@ public class Player : Character
         col = GetComponent<Collider2D>();
         checkWall = GetComponentInChildren<CheckWall>();
         timeDisplay = FindObjectOfType<TimeDisplay>(true);
+
+        UpdateGirlItemCount();
     }
 
     // Update is called once per frame
@@ -96,7 +98,7 @@ public class Player : Character
             StartCoroutine(Winner());
     }
 
-    public void UpdateGirlItemCount()
+    private void UpdateGirlItemCount()
     {
         girlMax = FindObjectsOfType<Girl>().Length;
         itemMax = GameObject.FindGameObjectsWithTag("Item").Length;

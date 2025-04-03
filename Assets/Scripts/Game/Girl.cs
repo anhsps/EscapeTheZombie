@@ -26,7 +26,7 @@ public class Girl : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            SoundManager19.Instance.PlaySound(-1);
+            SoundManager19.Instance.PlaySound(6);
             GetComponent<Collider2D>().enabled = false;
             StartCoroutine(GirlFree());
             collision.GetComponent<Player>().IncreaseGirl();

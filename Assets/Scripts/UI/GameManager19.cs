@@ -45,18 +45,19 @@ public class GameManager19 : Singleton<GameManager19>
 
         if (lvText) lvText.text = "LEVEL " + levelIndex.ToString("00");
 
-        if (gridPrefabs.Length > 0) CreateGrid(levelIndex);
+        if (gridPrefabs.Length > 0) StartCoroutine(CreateGrid(levelIndex));
     }
 
-    private void CreateGrid(int levelIndex)
+    private IEnumerator CreateGrid(int levelIndex)
     {
         foreach (Transform child in gridParent)
             Destroy(child.gameObject);
+        yield return null;// wait destroy complete
 
         if (gridPrefabs[levelIndex - 1] != null)
             Instantiate(gridPrefabs[levelIndex - 1], gridParent);
 
-        StartCoroutine(DelayPlayer());// create grid xong ms chay tranh loi
+        Camera.main.GetComponent<CameraFollow>().TargetPos();
     }
 
     public void Home() => SceneManager.LoadScene("Home");
@@ -124,10 +125,10 @@ public class GameManager19 : Singleton<GameManager19>
         GameWin();
     }
 
-    private IEnumerator DelayPlayer()
+    /*private IEnumerator DelayPlayer()
     {
         yield return null;
         Player player = FindObjectOfType<Player>();
         if (player) player.UpdateGirlItemCount();
-    }
+    }*/
 }

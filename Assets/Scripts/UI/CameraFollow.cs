@@ -10,13 +10,16 @@ public class CameraFollow : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        target = FindObjectOfType<Player>().transform;
+        
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (!target) return;
         Vector3 pos = new Vector3(target.position.x, 0, -10f);
         Camera.main.transform.position = Vector3.Lerp(transform.position, pos, speed * Time.deltaTime);
     }
+
+    public void TargetPos() => target = FindObjectOfType<Player>().transform;
 }
